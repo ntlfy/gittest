@@ -109,7 +109,11 @@ EOF
 
 bash /etc/rc.local
 
-gen_proxy_file_for_user
+gen_proxy_file_for_user() {
+    cat >proxy.txt <<EOF
+$(awk -F "/" '{print $3 ":" $4}' ${WORKDATA})
+EOF
+}
 rm -rf /root/setup.sh
 rm -rf /root/3proxy-3proxy-0.8.6
 
