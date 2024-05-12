@@ -18,7 +18,7 @@ install_3proxy() {
     URL="https://github.com/z3APA3A/3proxy/archive/3proxy-0.8.6.tar.gz"
     wget -qO- $URL | bsdtar -xvf-
     cd 3proxy-3proxy-0.8.6
-    make -f Makefile.Linux
+    make -f Makefile.Linux	
     mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     cp src/3proxy /usr/local/etc/3proxy/bin/
     #cp ./scripts/rc.d/proxy.sh /etc/init.d/3proxy
@@ -41,20 +41,17 @@ setgid 65535
 setuid 65535
 stacksize 6291456 
 flush
-auth strong
 
-users $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
-
-$(awk -F "/" '{print "auth strong\n" \
+$(awk -F "/" '{print "auth none\n" \
 "allow " $1 "\n" \
-"proxy -6 -n -a -p" $4 " -i" $3 " -e"$5"\n" \
+"proxy -6 -n -p" $4 " -i" $3 " -e"$5"\n" \
 "flush\n"}' ${WORKDATA})
 EOF
 }
 
 gen_proxy_file_for_user() {
     cat >proxy.txt <<EOF
-$(awk -F "/" '{print $3 ":" $4 ":" $1 ":" $2 }' ${WORKDATA})
+$(awk -F "/" '{print $3 ":" $4 ":" $1 }' ${WORKDATA})
 EOF
 }
 
@@ -115,4 +112,3 @@ rm -rf /root/setup.sh
 rm -rf /root/3proxy-3proxy-0.8.6
 
 echo "Starting Proxy"
-
