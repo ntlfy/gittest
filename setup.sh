@@ -42,9 +42,7 @@ setuid 65535
 stacksize 6291456 
 flush
 
-users $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
-
-$(awk -F "/" '{print "auth strong\n" \
+$(awk -F "/" '{print "auth none\n" \
 "allow " $1 "\n" \
 "proxy -6 -n -a -p" $3 ":" $4 "\n" \
 "flush\n"}' ${WORKDATA})
@@ -52,29 +50,25 @@ EOF
 }
 
 gen_proxy_file_for_user() {
-    cat >proxy.txt <<EOF
-$(awk -F "/" '{print $3 ":" $4 }' ${WORKDATA})
-EOF
+    awk -F "/" '{print $3 ":" $4 }' ${WORKDATA} > proxy.txt
 }
 
 
 gen_data() {
     seq $FIRST_PORT $LAST_PORT | while read port; do
-        echo "user$port/$(random)/$IP4/$port/$(gen64 $IP6)"
+        echo "$(random)/$IP4/$port/$(gen64 $IP6)"
     done
 }
 
 gen_iptables() {
-    cat <<EOF
-    $(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
-EOF
+    awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 " -m state --state NEW -j ACCEPT"}' ${WORKDATA}
 }
 
+
 gen_ifconfig() {
-    cat <<EOF
-$(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA})
-EOF
+    awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA}
 }
+
 echo "installing apps"
 yum -y install gcc net-tools bsdtar zip >/dev/null
 
